@@ -46,11 +46,28 @@ ISO 8601 compliant datetime string like ``2022-12-25 00:00:00``
 
 #### ``format``
 
+- ``relative`` Displays relative time span to/from specified time point e.g. ``2 minutes ago``
+- ``elapsed`` Returns in descending order all time parts e.g. ``1y 2m 1d 4h``
+- ``micro`` Returns the largest time part using very short unit e.g. ``4y``
+- ``datetime`` Delivers date as local string e.g. ``Sat, Dec 10. 2022``
+- ``date`` Same as ``datetime`` with prefix (default ``on``)
+- ``clock`` Shows a coutdown or running clock with hours, minutes and seconds e.g. ``12:03:43``
+
 #### ``precision``
+
+Precision limits the output to the specified smallest part; e.g. ``precision=hour`` deletes minutes and seconds.
+
+For values smaller than the specified precision, ``just now`` is printed. For ``format=clock`` the output is omitted for seconds at most.
 
 #### ``tense``
 
+Restricts the output of durations to either the future ``tense=future`` or the past ``tense=past``. Events outside of the possible range are output as ``just now``. By default, ``tense=auto`` allows both directions.
+
 #### ``formatStyle``
+
+The ``formatStyle`` attribute determines the length of the unit names. This value is passed directly to the ``Intl`` function.
+
+For more information click [here](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/DateTimeFormat/DateTimeFormat).
 
 #### ``threshold``
 
