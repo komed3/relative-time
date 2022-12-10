@@ -141,7 +141,7 @@ var __reltime_out = (
 
                     data.el.innerHTML = data.format == 'relative'
                         ? diff < 0 ? parts[0] + ' ago' : 'in ' + parts[0]
-                        : data.format == 'micro' ? parts[0] : parts.join( ', ' );
+                        : data.format == 'micro' ? parts[0] : parts.join( ' ' );
 
                 }
 
