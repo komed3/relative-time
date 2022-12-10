@@ -79,6 +79,18 @@ var __reltime_out = (
         diff = data.datetime - Date.now(),
         mill = Math.abs( diff );
 
+    if( (
+        data.tense == 'past' &&
+        mill < 0
+    ) || (
+        data.tense == 'future' &&
+        mill > 0
+    ) ) {
+
+        mill = 0;
+
+    }
+
     switch( data.format ) {
 
         case 'relative':
