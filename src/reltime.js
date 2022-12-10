@@ -13,23 +13,33 @@ const __reltime__config = {
     ]
 };
 
+const __reltime__factors = {
+    year:   31557600000,
+    month:   2629800000,
+    week:     604800000,
+    day:       86400000,
+    hour:       3600000,
+    minute:       60000,
+    second:        1000
+};
+
 const __reltime__words = {
     second: [ 'second', 'seconds', 'sec', 's' ],
     minute: [ 'minute', 'minutes', 'min', 'm' ],
-    hour: [ 'hour', 'hours', 'hrs', 'h' ],
-    day: [ 'day', 'days', 'day', 'd' ],
-    week: [ 'week', 'weeks', 'wks', 'w' ],
-    month: [ 'month', 'months', 'mth', 'm' ],
-    year: [ 'year', 'years', 'yrs', 'y' ],
-    now: 'just now',
-    ago: ' ago',
-    in: 'in ',
-    on: 'on '
+    hour:   [ 'hour', 'hours', 'hrs', 'h' ],
+    day:    [ 'day', 'days', 'day', 'd' ],
+    week:   [ 'week', 'weeks', 'wks', 'w' ],
+    month:  [ 'month', 'months', 'mth', 'm' ],
+    year:   [ 'year', 'years', 'yrs', 'y' ],
+    now:    'just now',
+    ago:    ' ago',
+    in:     'in ',
+    on:     'on '
 };
 
 const __reltime__interval = 1000;
 
-const __reltime__threshold = 15000;
+const __reltime__threshold = 10000;
 
 var __reltime = null;
 
@@ -59,6 +69,9 @@ var __reltime_register = (
             datetime: Date.parse(
                 el.getAttribute( 'datetime' ) || ''
             ),
+            threshold: __reltime_ISO8601(
+                el.getAttribute( 'threshold' ) || 'P30D'
+            )
         };
 
     Object.keys( __reltime__config ).forEach( ( conf ) => {
@@ -78,23 +91,50 @@ var __reltime_register = (
 
 };
 
+var __reltime_ISO8601 = (
+    ISO8601
+) => {
+
+    let matches = ISO8601.match(
+        /(-)?P(?:([.,\d]+)Y)?(?:([.,\d]+)M)?(?:([.,\d]+)W)?(?:([.,\d]+)D)?(?:T(?:([.,\d]+)H)?(?:([.,\d]+)M)?(?:([.,\d]+)S)?)?/
+    );
+
+    return (
+        ( matches[2] || 0 ) * __reltime__factors.year +
+        ( matches[3] || 0 ) * __reltime__factors.month +
+        ( matches[4] || 0 ) * __reltime__factors.week +
+        ( matches[5] || 0 ) * __reltime__factors.day +
+        ( matches[6] || 0 ) * __reltime__factors.hour +
+        ( matches[7] || 0 ) * __reltime__factors.minute +
+        ( matches[8] || 0 ) * __reltime__factors.second
+    );
+
+};
+
 var __reltime_get = (
     guid
 ) => {
 
     let data = __reltime__register[ guid ],
-        diff = data.datetime - Date.now(),
+        tnow = Date.now(),
+        diff = data.datetime - tnow,
         mill = Math.abs( diff );
 
     if( (
         data.tense == 'past' &&
-        mill < 0
+        diff > 0
     ) || (
         data.tense == 'future' &&
-        mill > 0
+        diff < 0
     ) ) {
 
         mill = 0;
+
+    }
+
+    if( mill >= data.threshold ) {
+
+        data.format = 'date';
 
     }
 
@@ -112,15 +152,7 @@ var __reltime_get = (
 
                 let parts = [];
 
-                for( const [ key, val ] of Object.entries( {
-                    year:   31557600000,
-                    month:   2629800000,
-                    week:     604800000,
-                    day:       86400000,
-                    hour:       3600000,
-                    minute:       60000,
-                    second:        1000
-                } ) ) {
+                for( const [ key, val ] of Object.entries( __reltime__factors ) ) {
 
                     if( mill >= val ) {
 
