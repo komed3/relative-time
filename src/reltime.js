@@ -1,6 +1,6 @@
 const __config = {
     format: [
-        'relative', 'datetime', 'elapsed', 'micro', 'clock'
+        'relative', 'elapsed', 'micro', 'date', 'datetime', 'clock'
     ],
     precision: [
         'second', 'minute', 'hour', 'day', 'week', 'year'
@@ -19,7 +19,11 @@ const __words = {
     hour: [ 'hour', 'hours', 'hrs', 'h' ],
     day: [ 'day', 'days', 'day', 'd' ],
     week: [ 'week', 'weeks', 'wks', 'w' ],
-    week: [ 'year', 'years', 'yrs', 'y' ]
+    year: [ 'year', 'years', 'yrs', 'y' ],
+    now: 'just now',
+    ago: ' ago',
+    in: 'in ',
+    on: 'on '
 };
 
 const __interval = 1000;
@@ -99,7 +103,7 @@ var __reltime_out = (
 
             if( mill <= 10000 ) {
 
-                data.el.innerHTML = 'now';
+                data.el.innerHTML = __words['now'];
 
             } else {
 
@@ -130,7 +134,9 @@ var __reltime_out = (
 
                 parts.splice(
                     parts.length - (
-                        rmv = __config.precision.indexOf( data.precision )
+                        rmv = __config.precision.indexOf(
+                            data.precision
+                        )
                     ),
                     rmv
                 );
@@ -139,7 +145,7 @@ var __reltime_out = (
 
                 if( parts.length == 0 ) {
 
-                    data.el.innerHTML = 'now';
+                    data.el.innerHTML = __words['now'];
 
                 } else {
 
@@ -152,8 +158,12 @@ var __reltime_out = (
                     } );
 
                     data.el.innerHTML = data.format == 'relative'
-                        ? diff < 0 ? parts[0] + ' ago' : 'in ' + parts[0]
-                        : data.format == 'micro' ? parts[0] : parts.join( ' ' );
+                        ? diff < 0
+                            ? parts[0] + __words['ago']
+                            : __words['in'] + parts[0]
+                        : data.format == 'micro'
+                            ? parts[0]
+                            : parts.join( ' ' );
 
                 }
 
@@ -161,15 +171,23 @@ var __reltime_out = (
 
             break;
 
+        case 'date':
         case 'datetime':
 
             let datetime = new Date();
             datetime.setTime( data.datetime );
 
-            data.el.innerHTML = datetime.toLocaleDateString(
+            data.el.innerHTML = (
+                data.format == 'date'
+                    ? __words['on']
+                    : ''
+            ) + datetime.toLocaleDateString(
                 data.locale,
                 {
-                    dateStyle: data.formatStyle
+                    dateStyle:
+                        data.format == 'date'
+                            ? 'long'
+                            : data.formatStyle,
                 }
             );
 
