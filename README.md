@@ -40,6 +40,39 @@ The element can have different attributes as shown in the table below:
 | ``threshold``   | valid ISO8601 Time Duration                                              | ``P30D``       | no       |
 | ``locale``      | DateTimeFormat locales                                                   | ``en``         | no       |
 
+#### ``datetime``
+
+ISO 8601 compliant datetime string like ``2022-12-25 00:00:00``
+
+#### ``format``
+
+#### ``precision``
+
+#### ``tense``
+
+#### ``formatStyle``
+
+#### ``threshold``
+
+Use Threshold to display a relative time period beyond the specified value as a date.
+
+Valid values specified in the [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601#Durations) format.
+
+#### ``locale``
+
+One of supported locals for ``Intl.DateTimeFormat``
+
+For more information click [here](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/DateTimeFormat/supportedLocalesOf).
+
+### Examples
+
+```html
+<reltime datetime="2022-12-25 00:00:00"></reltime>
+<reltime datetime="2022-12-25 00:00:00" format="elapsed" precision="day"></reltime>
+<reltime datetime="2022-12-25 00:00:00" format="datetime" formatStyle="short"></reltime>
+<reltime datetime="2022-12-25 00:00:00" threshold="P2Y"></reltime>
+```
+
 ### Config
 
 You can play around with config constants to use this library however you like.
