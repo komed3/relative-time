@@ -1,9 +1,6 @@
 const __config = {
-    lang: [
-        'en', 'de'
-    ],
     format: [
-        'relative', 'datetime', 'duration'
+        'relative', 'datetime', 'duration', 'clock'
     ],
     precision: [
         'second', 'minute', 'hour', 'day', 'month', 'year'
@@ -12,7 +9,7 @@ const __config = {
         'auto', 'past', 'future'
     ],
     formatStyle: [
-        'long', 'short', 'narrow', 'micro'
+        'full', 'long', 'medium', 'short'
     ]
 };
 
@@ -39,6 +36,10 @@ var __reltime_register = (
 
     let guid = self.crypto.randomUUID(),
         data = {
+            el: el,
+            locale: Intl.DateTimeFormat.supportedLocalesOf(
+                el.getAttribute( 'locale' ) || 'en'
+            )[0] || 'en',
             datetime: Date.parse(
                 el.getAttribute( 'datetime' ) || ''
             ),
@@ -66,6 +67,24 @@ var __reltime_clock = (
 ) => {
 
     let data = __register[ guid ];
+
+    if( data.format == 'datetime' ) {
+
+        let datetime = new Date();
+        datetime.setTime( data.datetime );
+
+        data.el.innerHTML = datetime.toLocaleDateString(
+            data.locale,
+            {
+                dateStyle: data.formatStyle
+            }
+        );
+
+    } else {
+
+
+
+    }
 
 };
 
