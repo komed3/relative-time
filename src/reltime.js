@@ -3,7 +3,7 @@ const __config = {
         'relative', 'datetime', 'duration', 'micro', 'clock'
     ],
     precision: [
-        'second', 'minute', 'hour', 'day', 'month', 'year'
+        'second', 'minute', 'hour', 'day', 'week', 'year'
     ],
     tense: [
         'auto', 'past', 'future'
@@ -72,6 +72,33 @@ var __reltime_out = (
 
     switch( data.format ) {
 
+        case 'relative':
+        case 'duration':
+        case 'micro':
+
+            let parts = [];
+
+            for( const [ key, val ] of Object.entries( {
+                year:   31557600000,
+                week:     604800000,
+                day:       86400000,
+                hour:       3600000,
+                minute:       60000,
+                second:        1000
+            } ) ) {
+
+                if( abs >= val ) {
+
+                    abs -= Math.floor( res = abs / val ) * val;
+
+                    parts.push( [ key, res ] );
+
+                }
+
+            }
+
+            break;
+
         case 'datetime':
 
             let datetime = new Date();
@@ -95,7 +122,7 @@ var __reltime_out = (
             ];
 
             if( data.precision != 'second' )
-                clock.splice(-1);
+                clock.splice( -1 );
 
             data.el.innerHTML = clock.join( ':' );
 
