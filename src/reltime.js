@@ -1,9 +1,9 @@
-const __config = {
+const __reltime__config = {
     format: [
         'relative', 'elapsed', 'micro', 'date', 'datetime', 'clock'
     ],
     precision: [
-        'second', 'minute', 'hour', 'day', 'week', 'year'
+        'second', 'minute', 'hour', 'day', 'week', 'month', 'year'
     ],
     tense: [
         'auto', 'past', 'future'
@@ -13,12 +13,13 @@ const __config = {
     ]
 };
 
-const __words = {
+const __reltime__words = {
     second: [ 'second', 'seconds', 'sec', 's' ],
     minute: [ 'minute', 'minutes', 'min', 'm' ],
     hour: [ 'hour', 'hours', 'hrs', 'h' ],
     day: [ 'day', 'days', 'day', 'd' ],
     week: [ 'week', 'weeks', 'wks', 'w' ],
+    month: [ 'month', 'months', 'mth', 'm' ],
     year: [ 'year', 'years', 'yrs', 'y' ],
     now: 'just now',
     ago: ' ago',
@@ -26,19 +27,21 @@ const __words = {
     on: 'on '
 };
 
-const __interval = 1000;
+const __reltime__interval = 1000;
+
+const __reltime__threshold = 15000;
 
 var __reltime = null;
 
-var __register = {};
+var __reltime__register = {};
 
 var __reltime_parse_config = (
     conf, test
 ) => {
 
-    return conf in __config ? (
-        __config[ conf ].includes( test )
-            ? test : __config[ conf ][0]
+    return conf in __reltime__config ? (
+        __reltime__config[ conf ].includes( test )
+            ? test : __reltime__config[ conf ][0]
     ) : null;
 
 };
@@ -58,7 +61,7 @@ var __reltime_register = (
             ),
         };
 
-    Object.keys( __config ).forEach( ( conf ) => {
+    Object.keys( __reltime__config ).forEach( ( conf ) => {
 
         data[ conf ] = __reltime_parse_config(
             conf,
@@ -67,7 +70,7 @@ var __reltime_register = (
 
     } );
 
-    __register[ guid ] = data;
+    __reltime__register[ guid ] = data;
 
     el.setAttribute( 'guid', guid );
 
@@ -75,11 +78,11 @@ var __reltime_register = (
 
 };
 
-var __reltime_out = (
+var __reltime_get = (
     guid
 ) => {
 
-    let data = __register[ guid ],
+    let data = __reltime__register[ guid ],
         diff = data.datetime - Date.now(),
         mill = Math.abs( diff );
 
@@ -101,9 +104,9 @@ var __reltime_out = (
         case 'elapsed':
         case 'micro':
 
-            if( mill <= 10000 ) {
+            if( mill <= __reltime__threshold ) {
 
-                data.el.innerHTML = __words['now'];
+                data.el.innerHTML = __reltime__words['now'];
 
             } else {
 
@@ -111,6 +114,7 @@ var __reltime_out = (
 
                 for( const [ key, val ] of Object.entries( {
                     year:   31557600000,
+                    month:   2629800000,
                     week:     604800000,
                     day:       86400000,
                     hour:       3600000,
@@ -134,7 +138,7 @@ var __reltime_out = (
 
                 parts.splice(
                     parts.length - (
-                        rmv = __config.precision.indexOf(
+                        rmv = __reltime__config.precision.indexOf(
                             data.precision
                         )
                     ),
@@ -145,22 +149,22 @@ var __reltime_out = (
 
                 if( parts.length == 0 ) {
 
-                    data.el.innerHTML = __words['now'];
+                    data.el.innerHTML = __reltime__words['now'];
 
                 } else {
 
                     parts.forEach( ( p, _i ) => {
                         parts[ _i ] = p[1] + (
                             data.format == 'relative'
-                                ? ' ' + __words[ p[0] ][ +!( p[1] == 1 ) ]
-                                : __words[ p[0] ][3]
+                                ? ' ' + __reltime__words[ p[0] ][ +!( p[1] == 1 ) ]
+                                : __reltime__words[ p[0] ][3]
                         );
                     } );
 
                     data.el.innerHTML = data.format == 'relative'
                         ? diff < 0
-                            ? parts[0] + __words['ago']
-                            : __words['in'] + parts[0]
+                            ? parts[0] + __reltime__words['ago']
+                            : __reltime__words['in'] + parts[0]
                         : data.format == 'micro'
                             ? parts[0]
                             : parts.join( ' ' );
@@ -179,7 +183,7 @@ var __reltime_out = (
 
             data.el.innerHTML = (
                 data.format == 'date'
-                    ? __words['on']
+                    ? __reltime__words['on']
                     : ''
             ) + datetime.toLocaleDateString(
                 data.locale,
@@ -219,7 +223,7 @@ var __reltime_run = () => {
 
     document.querySelectorAll( 'reltime' ).forEach( ( el ) => {
 
-        __reltime_out(
+        __reltime_get(
             el.hasAttribute( 'guid' )
                 ? el.getAttribute( 'guid' )
                 : __reltime_register( el )
@@ -229,7 +233,7 @@ var __reltime_run = () => {
 
     __reltime = setTimeout(
         __reltime_run,
-        __interval
+        __reltime__interval
     );
 
 };
@@ -240,7 +244,7 @@ var __reltime_stop = () => {
 
 };
 
-window.onload = ( e ) => {
+window.onload = () => {
 
     __reltime_run();
 
