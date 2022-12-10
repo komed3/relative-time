@@ -1,6 +1,6 @@
 const __config = {
     format: [
-        'relative', 'datetime', 'duration', 'micro', 'clock'
+        'relative', 'datetime', 'elapsed', 'micro', 'clock'
     ],
     precision: [
         'second', 'minute', 'hour', 'day', 'week', 'year'
@@ -11,6 +11,15 @@ const __config = {
     formatStyle: [
         'full', 'long', 'medium', 'short'
     ]
+};
+
+const __words = {
+    second: [ 'second', 'seconds', 'sec', 's' ],
+    minute: [ 'minute', 'minutes', 'min', 'm' ],
+    hour: [ 'hour', 'hours', 'hrs', 'h' ],
+    day: [ 'day', 'days', 'day', 'd' ],
+    week: [ 'week', 'weeks', 'wks', 'w' ],
+    week: [ 'year', 'years', 'yrs', 'y' ]
 };
 
 const __interval = 1000;
@@ -67,31 +76,72 @@ var __reltime_out = (
 ) => {
 
     let data = __register[ guid ],
-        diff = Date.now() - data.datetime,
+        diff = data.datetime - Date.now(),
         mill = Math.abs( diff );
 
     switch( data.format ) {
 
         case 'relative':
-        case 'duration':
+        case 'elapsed':
         case 'micro':
 
-            let parts = [];
+            if( mill <= 10000 ) {
 
-            for( const [ key, val ] of Object.entries( {
-                year:   31557600000,
-                week:     604800000,
-                day:       86400000,
-                hour:       3600000,
-                minute:       60000,
-                second:        1000
-            } ) ) {
+                data.el.innerHTML = 'now';
 
-                if( mill >= val ) {
+            } else {
 
-                    mill -= Math.floor( res = mill / val ) * val;
+                let parts = [];
 
-                    parts.push( [ key, res ] );
+                for( const [ key, val ] of Object.entries( {
+                    year:   31557600000,
+                    week:     604800000,
+                    day:       86400000,
+                    hour:       3600000,
+                    minute:       60000,
+                    second:        1000
+                } ) ) {
+
+                    if( mill >= val ) {
+
+                        mill -= ( res = Math.floor( mill / val ) ) * val;
+
+                        parts.push( [ key, res ] );
+
+                    } else {
+
+                        parts.push( [ key, 0 ] );
+
+                    }
+
+                }
+
+                parts.splice(
+                    parts.length - (
+                        rmv = __config.precision.indexOf( data.precision )
+                    ),
+                    rmv
+                );
+
+                parts = parts.filter( part => part[1] > 0 );
+
+                if( parts.length == 0 ) {
+
+                    data.el.innerHTML = 'now';
+
+                } else {
+
+                    parts.forEach( ( p, _i ) => {
+                        parts[ _i ] = p[1] + (
+                            data.format == 'relative'
+                                ? ' ' + __words[ p[0] ][ +!( p[1] == 1 ) ]
+                                : __words[ p[0] ][3]
+                        );
+                    } );
+
+                    data.el.innerHTML = data.format == 'relative'
+                        ? diff < 0 ? parts[0] + ' ago' : 'in ' + parts[0]
+                        : data.format == 'micro' ? parts[0] : parts.join( ', ' );
 
                 }
 
@@ -137,7 +187,7 @@ var __reltime_out = (
 
 var __reltime_run = () => {
 
-    document.querySelectorAll( 'reltime' ).forEach( ( el, _i ) => {
+    document.querySelectorAll( 'reltime' ).forEach( ( el ) => {
 
         __reltime_out(
             el.hasAttribute( 'guid' )
