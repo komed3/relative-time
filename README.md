@@ -21,7 +21,7 @@ Embed ``reltime.js`` or minimized version of this JavaScript library into your H
 Or use [jsDelivr](https://www.jsdelivr.com) to embed ``reltime.min.js`` via free CDN:
 
 ```html
-<script defer src="https://cdn.jsdelivr.net/gh/komed3/relative-time@master/src/reltime.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/gh/komed3/relative-time/src/reltime.min.js"></script>
 ```
 
 ### Usage
