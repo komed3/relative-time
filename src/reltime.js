@@ -68,7 +68,7 @@ var __reltime_out = (
 
     let data = __register[ guid ],
         diff = Date.now() - data.datetime,
-        abs = Math.abs( diff );
+        mill = Math.abs( diff );
 
     switch( data.format ) {
 
@@ -87,9 +87,9 @@ var __reltime_out = (
                 second:        1000
             } ) ) {
 
-                if( abs >= val ) {
+                if( mill >= val ) {
 
-                    abs -= Math.floor( res = abs / val ) * val;
+                    mill -= Math.floor( res = mill / val ) * val;
 
                     parts.push( [ key, res ] );
 
