@@ -1,6 +1,6 @@
 const __config = {
     format: [
-        'relative', 'datetime', 'duration', 'clock'
+        'relative', 'datetime', 'duration', 'micro', 'clock'
     ],
     precision: [
         'second', 'minute', 'hour', 'day', 'month', 'year'
@@ -62,27 +62,47 @@ var __reltime_register = (
 
 };
 
-var __reltime_clock = (
+var __reltime_out = (
     guid
 ) => {
 
-    let data = __register[ guid ];
+    let data = __register[ guid ],
+        diff = Date.now() - data.datetime,
+        abs = Math.abs( diff );
 
-    if( data.format == 'datetime' ) {
+    switch( data.format ) {
 
-        let datetime = new Date();
-        datetime.setTime( data.datetime );
+        case 'datetime':
 
-        data.el.innerHTML = datetime.toLocaleDateString(
-            data.locale,
-            {
-                dateStyle: data.formatStyle
-            }
-        );
+            let datetime = new Date();
+            datetime.setTime( data.datetime );
 
-    } else {
+            data.el.innerHTML = datetime.toLocaleDateString(
+                data.locale,
+                {
+                    dateStyle: data.formatStyle
+                }
+            );
 
+            break;
 
+        case 'clock':
+
+            let clock = [
+                Math.floor( abs / 3600000 ).toString().padStart( 2, '0' ),
+                Math.floor( abs % 3600000 / 60000 ).toString().padStart( 2, '0' ),
+                Math.floor( abs % 60000 / 1000 ).toString().padStart( 2, '0' )
+            ];
+
+            if( data.precision != 'second' )
+                clock.splice(-1);
+
+            data.el.innerHTML = clock.join( ':' );
+
+            break;
+
+        default:
+            break;
 
     }
 
@@ -92,7 +112,7 @@ var __reltime_run = () => {
 
     document.querySelectorAll( 'reltime' ).forEach( ( el, _i ) => {
 
-        __reltime_clock(
+        __reltime_out(
             el.hasAttribute( 'guid' )
                 ? el.getAttribute( 'guid' )
                 : __reltime_register( el )
